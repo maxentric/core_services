@@ -18,8 +18,6 @@ FILE_CONTENTS = """# OLSR.org routing daemon config file
 # Lines starting with a # are discarded
 #
 #
-# SG: Some exmaples of .conf files are in /etc/olsrd/ and /home/sg/olsrd/files/ (including README file)
-#
 
 #### ATTENTION for IPv6 users ####
 # Because of limitations in the parser IPv6 addresses must NOT
@@ -162,7 +160,7 @@ FILE_CONTENTS = """# OLSR.org routing daemon config file
 # UseNiit no
 
 # Activates the smartgateway ipip tunnel feature.
-# See README-Olsr-Extensions for a description of smartgateways. # SG: file is inside ~/olsrd/
+# See README-Olsr-Extensions for a description of smartgateways.
 # (default is "no")
 
 # SmartGateway no
@@ -497,8 +495,8 @@ IpcConnect
      # to connect. Here allowed hosts and networks can
      # be added
 
-     #Host            127.0.0.1	# SG: Enabled
-     #Host            10.0.0.1	# SG: Enabled
+     #Host            127.0.0.1
+     #Host            10.0.0.1
      # Net             192.168.1.0 255.255.255.0
 }
 
