@@ -4,11 +4,11 @@
 
 This service uses iperf3 network performance measurement tool to generate traffic. Use **sudo apt insteall iperf3** to install iperf3 or follow this link <https://github.com/esnet/iperf> for installation details. User can customize the traffic parameters at the source and destination nodes before starting the CORE session by clicking on 'Configure', followed by clicking on 'Configuration' (see Figures 1 and 2 below for reference). Otherwise, these services use the default parameters to set up the traffic flow. To see the list of parameters iperf3 supports, execute **man iperf3** command in the terminal.
 
-![](Images/Traffic_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.001.png)
+![](Images/Traffic_Service/FlowSourceSelection.png)
 
 Figure 1. Selecting the FlowSource service at a CORE node (see left), and the list of parameters which can be customized for each traffic flow (see right). 
 
-![](Images/Traffic_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.002.png)
+![](Images/Traffic_Service/FlowDestinationSelection.png)
 
 Figure 2. Selecting the FlowDestination service at a CORE node (see left), and the list of parameters which can be customized for each traffic flow (see right).
 
@@ -18,7 +18,7 @@ User can also provide the storage directory location, where the log file will be
 
 The icon of both source and destination nodes change to notify the user about the start and end of the traffic service (see Fig. 3). The default node icons are located in the /home/<user>/core/daemon/core/gui/data/icons/ folder. User can add new icons in this directory and use them in the script.
 
-![](Images/Traffic_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.003.png)  ![](Images/Traffic_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.004.png) 
+![](Images/Traffic_Service/ServiceStart.png)  ![](Images/Traffic_Service/ServiceComplete.png) 
 
 Figure 3. (Left) Change in the node icon to ‘alert.png’ represents the start of traffic service. (Right) Change in the node icon from ‘alert.png’ to ‘document-save.gif’ represents that the traffic is complete and the log files have been moved to the user-specified directory.
 
@@ -41,7 +41,7 @@ In case, user accidently stops the CORE session before the traffic completes, th
 
 Since Hooks are global and do not depend on any service, they should be manually created at the start of the session. In the current version of CORE (i.e., version 9.0.2), the shutdown commands in ‘config service’ are not called when the CORE session stops. This is a bug, which has been reported to the developers of CORE.
 
-![](Images/Traffic_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.005.png)
+![](Images/Traffic_Service/DatacollectHook.png)
 
 **Figure 4.** Selecting Datacollect hook in CORE.
 
@@ -121,10 +121,10 @@ To make OLSR as the default routing protocol, user must remove the other routing
 
 To check if a service is running on a CORE node once the CORE session starts, open the terminal at the CORE node and execute command ‘**top**’. You should see ‘myOlsrd’ service (see Figure 6 for reference). To see OLSR in action (i.e., get the 1- and 2-hop neighbors), run command ‘**./myOlsrd.sh**’. If you do not see the **myOlsrd** service running, check if the myOlsrd.conf and myOlsrd.sh files are in the CORE node’s local directory, and ensure that myOlsrd.sh is an executable file (use command **ls -la**  to see files and their permissions). If these files are not in the directory, copy them to the CORE node’s local directory and execute the commands given under the Startup/Shutdown label.
 
-![](Images/OLSRd_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.006.png)
+![](Images/OLSRd_Service/OLSRdSelection.png)
 
 **Figure 5**. Selecting OLSRd service at CORE node n2.
 
-![](Images/OLSRd_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.007.png) 
+![](Images/OLSRd_Service/RunningOLSRd.png) 
 
 Figure 6. A 6-node network topology is shown on the left. Each node has OLSRd service enabled. When the CORE session starts, an executable myOlsrd.sh file is created at each node (see top center). The ‘top’ command shows the myOlsrd.sh service in the bottom center. The routes found at node n1 using OLSR is shown on the right.
