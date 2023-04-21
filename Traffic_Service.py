@@ -11,15 +11,10 @@ from itertools import product
 # To get node icon
 from core.api.grpc import client
 from core.gui.appconfig import LOCAL_ICONS_PATH # Icon directory
-
+import os
 
 # Traffic flow log storage directory
-import os
-SESSION_LOGS_DIR = f"{os.path.abspath(os.path.join(os.getcwd(), os.pardir))}/.coregui/SessionLogs/"
-if not os.path.exists(SESSION_LOGS_DIR):
-    os.makedirs(SESSION_LOGS_DIR)
-    #print("Making a new directory:",SESSION_LOGS_DIR)
-
+DEFAULT_SESSION_LOGS_DIR = f"{os.path.abspath(os.path.join(os.getcwd(), os.pardir))}/.coregui/SessionLogs/"
 
 # Service and Group names
 GroupName = "maXentric"
@@ -31,6 +26,17 @@ ClientServiceName = "FlowSource"
 # Common functions
 #-------------------------------------
 
+# Create a directory if it does not exist
+def makeDirectory(directoryName):
+    try:
+        if not os.path.exists(directoryName):
+            os.makedirs(directoryName)
+        #print(f"Directory {directoryName} exists!")
+        return True
+    except:
+        print(f"***Could not create the directory: {directoryName}")
+        return False
+    
 # Update node's icon
 def nodeIconUpdate (node, icon):
     # Create grpc client and connect
@@ -70,22 +76,43 @@ def isInitialSetupDone(node,InitialNodeLocations):
 
     return initializationDone
 
-# Returns True when a node is still serving a traffic flow. Logic: A port becomes free when the traffic completes.
-def stillServingTraffic(node,database):
+# Returns True is a node is serving at least one traffic flow. Ow, moves the files to user-defined directory.
+def stillServingTraffic(node,database,nodeType,SESSION_LOGS_DIR):
     
     servingTraffic = False
-    tmpFile = f"/tmp/pycore.1/{node.name}.conf/portCheck.log"
-    node.cmd(f"ps aux > {tmpFile}", wait=True, shell=True); # Need shell and wait True
-                
-    with open(tmpFile) as f_:
-        for line,eachSrc in product(f_,database):
-            if (database[eachSrc]["Command"] in line):
-                #print("\n\n Service is still running:",line,"\n\n")
-                servingTraffic = True
-                break
 
-    # Delete the file
-    node.cmd(f"rm {tmpFile}", wait=False, shell=False)
+    # If CORE session is stopped while service is running, pycore.1 folder does not exist. Avoid the exception.
+    try:
+        tmpFile = f"/tmp/pycore.1/{node.name}.conf/portCheck.log"
+        node.cmd(f"ps aux > {tmpFile}", wait=True, shell=True); # Need shell and wait True
+                    
+        # Logic: A port becomes free when the traffic completes.
+        with open(tmpFile) as f_:
+            for line,eachSrc in product(f_,database):
+                if (database[eachSrc]["Command"] in line):
+                    #print("\n\n Service is still running:",line,"\n\n")
+                    servingTraffic = True
+                    break
+
+        # Delete the file
+        node.cmd(f"rm {tmpFile}", wait=False, shell=False)
+
+        # All traffic flows are complete
+        if (not servingTraffic):
+            print(f"\n***All traffic flows are complete at {nodeType} node: {node.name}\n")
+            
+            # Change the node icon
+            nodeIconUpdate(node,"document-save.gif")
+
+            # Move the files
+            for eachSrc in database:
+                node.cmd(f"cp {database[eachSrc]['Filename']} {SESSION_LOGS_DIR}", wait=False, shell=False)
+            print(f"\n***{nodeType} files have been moved to {SESSION_LOGS_DIR}\n")
+
+    except:
+        print(f"\n***Cannot check port. Abort service at node: {node.name}! \nPotential reason: CORE session is stopped.\n")
+        servingTraffic = False
+        
     return servingTraffic
 
 
@@ -122,6 +149,13 @@ class ServerService(ConfigService):
         ConfigString(id="Sources", 
                      default="*", 
                      label="Source Nodes (Use * to consider all nodes with FlowSource service. Or specify nodes as, <n2,n3,n4>)"),
+        ConfigString(id="ServiceStartOption",
+                     default="Any node moves",
+                     label="When to start the service",
+                     options=["Core session starts","Any node moves"]),
+        ConfigString(id="LogDirectory",
+                     default=DEFAULT_SESSION_LOGS_DIR,
+                     label="Directory where the files will be moved once traffic flow completes"),
     ]
     # Check 'man iperf3' to add more parameters.
     
@@ -140,15 +174,39 @@ class ServerService(ConfigService):
     # 4. Moves files upon completion.
     def traffic_worker (self,node,InitialNodeLocations):
         
-        #--------------------------------------------
-        # Wait until user initialization is complete
-        # (i.e., wait until any node moves)
-        #--------------------------------------------
+        # Current time
+        now = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+
+        # Get parameters to setup traffic
+        config = node.config_services.get(self.name).render_config(); #print("Config: ",config)
+
+        # Create directory to store log files
+        # a. User-specified directory
+        if (makeDirectory(config["LogDirectory"])):
+            # Update the log directory
+            SESSION_LOGS_DIR = config["LogDirectory"]
+        # b. Create directory (hard-coded)
+        else:
+            makeDirectory(DEFAULT_SESSION_LOGS_DIR)
+            SESSION_LOGS_DIR = DEFAULT_SESSION_LOGS_DIR
+        print("***Session Log dir:",SESSION_LOGS_DIR)
+
+        # Decide whether to wait until the initial setup is done or right away, to start the service
+        if ("Any node moves" in config["ServiceStartOption"]):
         
-        while (not isInitialSetupDone(node,InitialNodeLocations)):
-            sleep(1.0)
+            #--------------------------------------------
+            # Wait until user initialization is complete
+            # (i.e., wait until any node moves)
+            #--------------------------------------------
+
+            while (not isInitialSetupDone(node,InitialNodeLocations)):
+                sleep(1.0)
+            # Initialization done!
+
+        #else:
+        #    print("***Skipping the initialization setup!")
         
-        # Initialization done. Change node icon 
+        # Change the node icon 
         nodeIconUpdate(node,"alert.png")
 
 
@@ -156,12 +214,6 @@ class ServerService(ConfigService):
         # Set up traffic flows
         #--------------------------------
 
-        # Current time
-        now = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-
-        # Get parameters to setup traffic
-        config = node.config_services.get(self.name).render_config(); #print("Config: ",config)
-        
         # Find potential source nodes
         sources_str = config["Sources"]; sources = {}
         for thisNode in node.session.nodes.values():
@@ -197,27 +249,18 @@ class ServerService(ConfigService):
         # Change node icon when all traffic flows complete
         #--------------------------------------------------
         
+        # Wait until all traffic flows complete
         if (len(sources)):
-            
-            # Check if traffic flow continues
-            while stillServingTraffic(node,sources):
+            while stillServingTraffic(node,sources,"Destination",SESSION_LOGS_DIR):
                 sleep(5.0)
-            print("\n***All traffic flows are complete at destination node:",node.name,"\n")
-
-            # Move the files
-            for eachSrc in sources:
-                node.cmd(f"mv {sources[eachSrc]['Filename']} {SESSION_LOGS_DIR}", wait=False, shell=False)
-            print(f"\n***Server files have been moved to {SESSION_LOGS_DIR}\n")
-
-            # Change the node icon when the traffic completes
-            nodeIconUpdate(node,"document-save.gif")
-        
+            #print("\n***All traffic flows are complete at destination node:",node.name,"\n")
+            
         # No traffic flow was set up. Change the node icon to the original
         else:
             nodeIconUpdate(node,"mdr.png")
             print("\n***No source node found for destination node:",node.name)
         return
-    
+        
 
     def run_startup(self, wait:bool) -> None:
         #print("***In run_startup. wait:",wait)
@@ -264,6 +307,13 @@ class ClientService(ConfigService):
         ConfigString(id="DataRate", 
                      default="*", 
                      label="Data Rate (Use '*' for default, which corresponds to 1 Mbps for UDP and unlimited for TCP/SCTP. Usage <rate[K|M|G|T]bits>)"),
+        ConfigString(id="LogDirectory",
+                     default=DEFAULT_SESSION_LOGS_DIR,
+                     label="Directory where the files will be moved once traffic flow completes"),
+        ConfigString(id="ServiceStartOption",
+                     default="Any node moves",
+                     label="When to start the service",
+                     options=["Core session starts","Any node moves"]),
         ConfigString(id="TransportProtocol", 
                      default="TCP", 
                      label="Transport Protocol",
@@ -313,15 +363,39 @@ class ClientService(ConfigService):
     # 4. Moves files upon completion.
     def traffic_worker (self,node,InitialNodeLocations):
         
-        #--------------------------------------------
-        # Wait until user initialization is complete
-        # (i.e., wait until any node moves)
-        #--------------------------------------------
-        
-        while not isInitialSetupDone(node,InitialNodeLocations):
-            sleep(1.0)
+        # Current time
+        now = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
-        # Initialization done. Change node icon 
+        # Get parameters for traffic setup
+        config = node.config_services.get(self.name).render_config(); #print("Config: ",config)
+
+        # Create directory to store log files
+        # a. User-specified directory
+        if (makeDirectory(config["LogDirectory"])):
+            # Update the log directory
+            SESSION_LOGS_DIR = config["LogDirectory"]
+        # b. Create directory (hard-coded)
+        else:
+            makeDirectory(DEFAULT_SESSION_LOGS_DIR)
+            SESSION_LOGS_DIR = DEFAULT_SESSION_LOGS_DIR
+        print("***Session Log dir:",SESSION_LOGS_DIR)
+        
+        # Decide whether to wait until the initial setup is done or right away, to start the service
+        if ("Any node moves" in config["ServiceStartOption"]):
+        
+            #--------------------------------------------
+            # Wait until user initialization is complete
+            # (i.e., wait until any node moves)
+            #--------------------------------------------
+
+            while (not isInitialSetupDone(node,InitialNodeLocations)):
+                sleep(1.0)
+            # Initialization done!
+        
+        #else:
+        #    print("***Skipping the initialization setup!")
+        
+        # Change the node icon 
         nodeIconUpdate(node,"alert.png")
 
         # Need additional wait at source node to allow destination (server) node to start listening on the ports
@@ -331,12 +405,6 @@ class ClientService(ConfigService):
         #--------------------------------
         # Set up traffic flows
         #--------------------------------
-
-        # Current time
-        now = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-
-        # Get parameters for traffic setup
-        config = node.config_services.get(self.name).render_config(); #print("Config: ",config)
 
         # Get port
         port = 5200+int(node.name[1:])
@@ -400,8 +468,8 @@ class ClientService(ConfigService):
 
                                 # Create iperf3 command
                                 IpAddress = str((thisNode.get_ifaces()[0]).get_ip4 ().ip)
-                                FILENAME = f"/tmp/pycore.1/{node.name}.conf/Client_{node.name}_Server_{thisNode.name}_Port_{port}_Time_{now}.txt"
-                                cmd = f"iperf3 --client {IpAddress} {extraArgs} --logfile {FILENAME}"
+                                FILENAME = f"/tmp/pycore.1/{node.name}.conf/Client_{node.name}_Server_{thisNode.name}_Port_{port}_Time_{now}.json"
+                                cmd = f"iperf3 --client {IpAddress} {extraArgs} --logfile {FILENAME} -J --get-server-output"
                                 destinations[thisNode.name] = {"Port":port,"IpAddress":IpAddress,"Filename":FILENAME,"Command": cmd}
 
                                 #-------------------------------
@@ -420,21 +488,12 @@ class ClientService(ConfigService):
         # Change node icon when all traffic flows complete
         #--------------------------------------------------
         
+        # Wait until traffic flow continues
         if (len(destinations)):
-            
-            # Check if traffic flow continues
-            while stillServingTraffic(node,destinations):
+            while stillServingTraffic(node,destinations,"Source",SESSION_LOGS_DIR):
                 sleep(5.0)            
-            print("\n***All traffic flows are complete at source node:",node.name,"\n")
-
-            # Move the files
-            for eachSrc in destinations:
-                node.cmd(f"mv {destinations[eachSrc]['Filename']} {SESSION_LOGS_DIR}", wait=False, shell=False)
-            print(f"\n***Client files have been moved to {SESSION_LOGS_DIR}\n")
-
-            # Change the node icon when the traffic completes
-            nodeIconUpdate(node,"document-save.gif")
-        
+            #print("\n***All traffic flows are complete at source node:",node.name,"\n")
+            
         # No traffic flow was set up. Change the node icon to the original
         else:
             nodeIconUpdate(node,"mdr.png")
