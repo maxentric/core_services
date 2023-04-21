@@ -1,4 +1,4 @@
-﻿This repository contains different services that can be enabled at a CORE node. These services have been tested on [CORE](https://coreemu.github.io/core/) version 9.0.1 and [EMANE](https://coreemu.github.io/core/emane.html) version 1.4.1, using [Python](https://www.python.org/downloads/) version 3.10.6. 
+﻿This repository contains different custom services that can be enabled at a CORE node. These services have been tested on [CORE](https://coreemu.github.io/core/) version 9.0.1 and [EMANE](https://coreemu.github.io/core/emane.html) version 1.4.1, using [Python](https://www.python.org/downloads/) version 3.10.6. 
  
 ---------------
 
