@@ -1,11 +1,3 @@
-#--------------------------------------------------------------------------------
-# Author: MaXentric Technologies, LLC
-# Tested on: python3.10.6, CORE 9.0.1, iperf3.9
-#--------------------------------------------------------------------------------
-
-"""
-Simple example custom service, used to drive shell commands on a node.
-"""
 from typing import Tuple
 
 from core.nodes.base import CoreNode
