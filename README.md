@@ -4,11 +4,11 @@
 
 This service uses iperf3 network performance measurement tool to generate traffic. Use **sudo apt insteall iperf3** to install iperf3 or follow this link <https://github.com/esnet/iperf> for installation details. User can customize the traffic parameters at the source and destination nodes before starting the CORE session by clicking on 'Configure', followed by clicking on 'Configuration' (see Figures 1 and 2 below for reference). Otherwise, these services use the default parameters to set up the traffic flow. To see the list of parameters iperf3 supports, execute **man iperf3** command in the terminal.
 
-![](Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.001.png)
+![](Images/Traffic_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.001.png)
 
 Figure 1. Selecting the FlowSource service at a CORE node (see left), and the list of parameters which can be customized for each traffic flow (see right). 
 
-![](Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.002.png)
+![](Images/Traffic_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.002.png)
 
 Figure 2. Selecting the FlowDestination service at a CORE node (see left), and the list of parameters which can be customized for each traffic flow (see right).
 
@@ -16,9 +16,10 @@ To setup the background noise, channel conditions and antenna radiation patterns
 
 User can also provide the storage directory location, where the log file will be moved after the traffic completes. In the default case, a destination node listens for traffic from all the source nodes (i.e., the nodes that have source service enabled) in the network. The port number a destination node listens on is decided based on the source node’s name. If the source node is ‘n1’, the port used to receive traffic from node n1 will be 5200+1. Note that different destination nodes can receive traffic on the same port, but a node cannot receive traffic from different sources at the same port.
 
-The icon of both source and destination nodes change to notify the user about the start and end of the traffic service (see Fig. 3). The default node icons are located in the ~/core/daemon/core/gui/data/icons/ folder. User can add new icons in this directory and use them in the script.
+The icon of both source and destination nodes change to notify the user about the start and end of the traffic service (see Fig. 3). The default node icons are located in the /home/<user>/core/daemon/core/gui/data/icons/ folder. User can add new icons in this directory and use them in the script.
 
-![](Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.003.png)  ![](Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.004.png) 
+![](Images/Traffic_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.003.png)  ![](Images/Traffic_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.004.png) 
+
 Figure 3. (Left) Change in the node icon to ‘alert.png’ represents the start of traffic service. (Right) Change in the node icon from ‘alert.png’ to ‘document-save.gif’ represents that the traffic is complete and the log files have been moved to the user-specified directory.
 
 To distinguish among different traffic flows, the name of the log file includes the names of the source and destination nodes, the port number used by the destination node to receive traffic, and the date and time of the file creation. For example, the file created by the source and destination nodes are ‘Client\_n1\_Server\_n2\_Port\_5201\_Time\_2023-04-18\_18:29:41.json’ and ‘Server\_n2\_Client\_n1\_Port\_5201\_Time\_2023-04-18\_18:29:41.txt’, respectively. To plot statistics, use iperf3\_plotter (<https://github.com/ekfoury/iperf3_plotter>), which requires a ‘.json’ file. The ‘.txt’ file provides the traffic flow details recorded at the destination node, in the human-readable form. Note that the file type can be changed from the python script as per the need.
@@ -40,7 +41,7 @@ In case, user accidently stops the CORE session before the traffic completes, th
 
 Since Hooks are global and do not depend on any service, they should be manually created at the start of the session. In the current version of CORE (i.e., version 9.0.2), the shutdown commands in ‘config service’ are not called when the CORE session stops. This is a bug, which has been reported to the developers of CORE.
 
-![](Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.005.png)
+![](Images/Traffic_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.005.png)
 
 **Figure 4.** Selecting Datacollect hook in CORE.
 
@@ -120,10 +121,10 @@ To make OLSR as the default routing protocol, user must remove the other routing
 
 To check if a service is running on a CORE node once the CORE session starts, open the terminal at the CORE node and execute command ‘**top**’. You should see ‘myOlsrd’ service (see Figure 6 for reference). To see OLSR in action (i.e., get the 1- and 2-hop neighbors), run command ‘**./myOlsrd.sh**’. If you do not see the **myOlsrd** service running, check if the myOlsrd.conf and myOlsrd.sh files are in the CORE node’s local directory, and ensure that myOlsrd.sh is an executable file (use command **ls -la**  to see files and their permissions). If these files are not in the directory, copy them to the CORE node’s local directory and execute the commands given under the Startup/Shutdown label.
 
-![](Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.006.png)
+![](Images/OLSRd_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.006.png)
 
 **Figure 5**. Selecting OLSRd service at CORE node n2.
 
-![](Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.007.png) 
+![](Images/OLSRd_Service/Aspose.Words.42dac42c-ff96-4ab6-9a84-e21f8560cfbf.007.png) 
 
 Figure 6. A 6-node network topology is shown on the left. Each node has OLSRd service enabled. When the CORE session starts, an executable myOlsrd.sh file is created at each node (see top center). The ‘top’ command shows the myOlsrd.sh service in the bottom center. The routes found at node n1 using OLSR is shown on the right.
