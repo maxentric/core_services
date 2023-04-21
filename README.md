@@ -109,11 +109,11 @@ To make OLSR as the default routing protocol, user must remove the other routing
 4. User can check the details of this service by clicking on _Configure_. The first option is _Files_ under which you would see the `myOlsrd.conf` and `myOlsrd.sh` files that will be created upon starting the CORE session. Under the _Startup/Shutdown_ label, you will see two commands. `chmod +x myOlsrd.sh` makes the file executable, and `./myOlsrd.sh` runs the file.
 5. To disable other routing protocol at a CORE node, right click and select _Configure Services_. Under the _Selected_ label, you will see all the services selected for this node. Click on the unwanted service, then click _Remove_, followed by _Save_.
 
-To check if a service is running on a node once the CORE session starts, open the terminal at the CORE node and execute command `top`. You should see _myOlsrd_ service (see Figure 6 for reference). To see OLSR protocol in action (i.e., get the 1- and 2-hop neighbor nodes), run command `./myOlsrd.sh`. If you do not see the _myOlsrd_ service running, check if the `myOlsrd.conf` and `myOlsrd.sh` files are in the CORE node’s local directory, and ensure that `myOlsrd.sh` is an executable file (use command `ls -la`  to see files and their permissions). If these files are not in the directory, copy them to the CORE node’s local directory and execute the commands given under the _Startup/Shutdown_ label.
-
 | ![OLSRdSelection.png](Images/OLSRd_Service/OLSRdSelection.png) | 
 |:--:| 
 | **Figure 5**. Selecting OLSRd service at CORE node _n2_. |
+
+To check if a service is running on a node once the CORE session starts, open the terminal at the CORE node and execute command `top`. You should see _myOlsrd_ service (see Figure 6 for reference). To see OLSR protocol in action (i.e., get the 1- and 2-hop neighbor nodes), run command `./myOlsrd.sh`. If you do not see the _myOlsrd_ service running, check if the `myOlsrd.conf` and `myOlsrd.sh` files are in the CORE node’s local directory, and ensure that `myOlsrd.sh` is an executable file (use command `ls -la`  to see files and their permissions). If these files are not in the directory, copy them to the CORE node’s local directory and execute the commands given under the _Startup/Shutdown_ label.
 
 | ![RunningOLSRd.png](Images/OLSRd_Service/RunningOLSRd.png) | 
 |:--:| 
