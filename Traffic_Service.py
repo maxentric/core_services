@@ -1,35 +1,3 @@
-#--------------------------------------------------------------------------------
-# Author: MaXentric Technologies, LLC
-# Tested on: python3.10.6, CORE 9.0.1, iperf3.9
-#--------------------------------------------------------------------------------
-# Readme Instructions:
-#
-# This file creates custom services for the flow source and destination nodes. To 
-# select these services, click on 'config services' at a node, followed by 'maXentric'  
-# under 'Groups'. Here, we use iperf3 to create traffic flow for a node pair. User  
-# can customize the traffic parameters at the source and destination nodes before 
-# starting the CORE session by clicking on 'Configure', followed by clicking on 
-# 'Configuration'. Otherwise, these services use the default parameters in setting up
-# the traffic flow. Note that it supports UDP, TCP and SCTP transport layer protocols.
-#
-# When the CORE session starts, the traffic generation is delayed until the initial
-# setup is done. This allows user to setup the underlying network topology and channel 
-# conditions, such as assigning node antenna patterns or setting up the default routes 
-# and noise levels, etc., before starting the traffic flow. The initial setup phase 
-# completes when any node in the CORE session moves, which can be done either by manually 
-# moving a node on Canvas or assigning a new GPS coordinate via command line. After 
-# initialization, the traffic generation starts, which is notified to user by changing the
-# node icon from 'mdr.png' image to 'alert.png' image. When the traffic flow completes, 
-# node icon changes to 'document-save.gif', and the traffic log files of both source 
-# and destination nodes are moved to the 'SESSION_LOGS_DIR' location. Note that if no 
-# suitable source or destination node is found after the initial setup, node icon remains 
-# 'mdr.png' image.
-#
-# Before running the script, add the following entry to /etc/core/core.conf file.
-# custom_config_services_dir = /home/<DIRNAME>/.coregui/custom_services 
-# 
-#---------------------------------------------------------------------------------
-
 from typing import Dict, List
 
 from core.config import ConfigString, ConfigBool, Configuration
