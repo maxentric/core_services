@@ -1,5 +1,0 @@
-#!/bin/sh
-# session hook script; write commands here to execute on the host at the
-# specified state
-cp /tmp/pycore.1/n*.conf/Server_* /home/sg/.coregui/SessionLogs/
-cp /tmp/pycore.1/n*.conf/Client_* /home/sg/.coregui/SessionLogs/
