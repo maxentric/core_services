@@ -43,7 +43,7 @@ cp /tmp/pycore.1/n*.conf/Client_* <Path to user specified directory on host mach
 6. Click _Save_ and close the Hooks popup. Do not click _Cancel_ as it would not create the Datacollect hook.
 7. Run the Core session.
 
-Since Hooks are global and do not depend on any service, they should be manually created at the start of the session. In the [current version of CORE (i.e., version 9.0.2)](https://github.com/coreemu/core/tree/release-9.0.2), the shutdown commands in [config service](https://coreemu.github.io/core/configservices.html) are not called when the CORE session stops. This is a bug, which has been [reported](https://discord.com/channels/382277735575322625/382277735575322627#:~:text=Thanks%20for%20helping%20point%20this%20out%2C%20this%20issue%20for%20config%20services%20has%20been%20fixed%20on%20the%20develop%20branch%20for%20the%20next%20release) to the developers of CORE.
+Since Hooks are global and do not depend on any service, they should be manually created at the start of the session. In the [current version of CORE (i.e., version 9.0.2)](https://github.com/coreemu/core/tree/release-9.0.2), the shutdown commands in [config service](https://coreemu.github.io/core/configservices.html) are not called when the CORE session stops. This is a bug, which has been [reported](https://discord.com/channels/382277735575322625/382277735575322627#:~:text=Thanks%20for%20helping%20point%20this%20out%2C%20this%20issue%20for%20config%20services%20has%20been%20fixed%20on%20the%20develop%20branch%20for%20the%20next%20release) to the developers of CORE. Once fixed, use shutdown command in _Config Service_ instead of Hooks.
 
 | ![DatacollectHook.png](Images/Traffic_Service/DatacollectHook.png) | 
 |:--:| 
