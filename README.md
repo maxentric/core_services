@@ -25,7 +25,7 @@ The icon of both source and destination nodes change to notify the user about th
 |:--:| 
 | **Figure 3**. (Left) Node icon _alert.png_ represents the start of traffic service. (Right) Change in the node icon from _alert.png_ to _document-save.gif_ represents that the traffic is complete and the log files have been moved to the user-specified directory. |
 
-To distinguish among different traffic flows, the name of the log file includes the names of the source and destination nodes, the port number used by the destination node to receive traffic, and the date and time of the file creation. For example, the file created by the source and destination nodes are `Client\_n1\_Server\_n2\_Port\_5201\_Time\_2023-04-18\_18:29:41.json` and `Server\_n2\_Client\_n1\_Port\_5201\_Time\_2023-04-18\_18:29:41.txt`, respectively. Use [iperf3\_plotter](https://github.com/ekfoury/iperf3_plotter) to plot statistics of the traffic flow; it requires a _.json_ file. The _.txt_ file provides the traffic flow details recorded at the destination node in the human-readable form. Note that the file type can be changed from the python script as per the need.
+To distinguish among different traffic flows, the name of the log file includes the names of the source and destination nodes, the port number used by the destination node to receive traffic, and the date and time of the file creation. For example, the file created by the source and destination nodes are `Client_n1_Server_n2_Port_5201_Time_2023-04-18_18:29:41.json` and `Server_n2_Client_n1_Port_5201_Time_2023-04-18_18:29:41.txt`, respectively. Use [iperf3\_plotter](https://github.com/ekfoury/iperf3_plotter) to plot statistics of the traffic flow; it requires a _.json_ file. The _.txt_ file provides the traffic flow details recorded at the destination node in the human-readable form. Note that the file type can be changed from the python script as per the need.
 
 In case, user accidently stops the CORE session before the traffic completes, the log files are lost because the CORE destroys the node directories and its files. To prevent data loss in such situation, use [Datacollect Hook](https://coreemu.github.io/core/gui.html#session-states), which moves the log files before the node directory is destroyed. Follow these steps to setup Datacollect hook in a CORE session:
 
@@ -88,8 +88,8 @@ sudo make install_all
 sudo chmod a+x /core/*.sh; ls -l /core
 
 # If needed
-# To uninstall OLSRd: uninstall uninstall\_libs
-# To clean OLSRd implementation: uberclean clean\_libs  
+# To uninstall OLSRd: uninstall uninstall_libs
+# To clean OLSRd implementation: uberclean clean_libs  
 ```
 
 Once OLSRd is successfully installed, check the `defaultOlsrd.conf` file. It includes the different input parameters, such as _MainIP_ and _Interface_. Each CORE node must have its own OLSR configuration file, which is automatically created by OLSRd\_Service.py. This python script is based on the custom [Service](https://coreemu.github.io/core/services.html#creating-new-services) template, which is different than [Config Service](https://coreemu.github.io/core/configservices.html).
